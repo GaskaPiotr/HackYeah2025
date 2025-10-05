@@ -14,3 +14,7 @@ config/name="HackYeah2025"
 run/main_scene="uid://di4qnq3n5v88r"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
+
+[display]
+
+window/stretch/mode="canvas_items"

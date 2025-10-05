@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://bbxumv30xqprn"]
+
+[ext_resource type="Script" uid="uid://bdm35imosq6vp" path="res://board/card_on_hand.gd" id="1_8ev2n"]
+[ext_resource type="Texture2D" uid="uid://b46j3eo6rr3gw" path="res://icon.svg" id="2_x7r08"]
+
+[node name="Card_on_hand" type="Area2D"]
+script = ExtResource("1_8ev2n")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(9.536743e-07, 0)
+scale = Vector2(0.74999994, 1.375)
+texture = ExtResource("2_x7r08")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(-48, -88, 48, -88, 48, 88, -48, 88)
+
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
