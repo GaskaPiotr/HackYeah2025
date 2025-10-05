@@ -1,12 +1,13 @@
 [gd_scene load_steps=3 format=3 uid="uid://b7pixhmlyd780"]
 
 [ext_resource type="Script" uid="uid://b3fa7xxrddfsb" path="res://board/enemy.gd" id="1_sexi2"]
-[ext_resource type="Texture2D" uid="uid://b46j3eo6rr3gw" path="res://icon.svg" id="2_hgsni"]
+[ext_resource type="Texture2D" uid="uid://bhwrjdt1a64bx" path="res://graphics/nekromantA_1.png" id="2_hgsni"]
 
 [node name="Enemy" type="Area2D"]
 script = ExtResource("1_sexi2")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.15, 0.15)
 texture = ExtResource("2_hgsni")
 
 [node name="Label" type="Label" parent="."]

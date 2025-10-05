@@ -290,8 +290,25 @@ func enemy_move():
 	var move
 	var value
 	while not moved:
+		var special_attack
+		if boss:
+			if randi() % 4 == 0:
+				special_attack = true
 		move = EnemyMove.values()[randi() % EnemyMove.size()]
-		if move == EnemyMove.MIXTURE_DMG:
+		if special_attack:
+			print("trying SPECIAL ATTACK")
+			var how_many_left = 2
+			var children = $player_hand.get_children()
+			while how_many_left > 0:
+				var random_card_pos = randi() % children.size()
+				var card_to_remove = children[random_card_pos]
+				cards_on_hand.erase(card_to_remove)
+				card_to_remove.queue_free()
+				arrange_cards_in_hand(cards_on_hand, Vector2(0,80))
+				how_many_left = how_many_left - 1
+				print("moved SPECIAL ATTACK")
+			moved = true
+		elif move == EnemyMove.MIXTURE_DMG:
 			print("trying MIXTURE DMG")
 			value = randi() % 3 + 1
 			var children = $player_troops.get_children()

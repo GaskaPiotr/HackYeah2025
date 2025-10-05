@@ -2,6 +2,9 @@ extends Node2D
 
 var curr_health = 5
 
+func _ready():
+	$Label.text = str(curr_health)
+
 func _input_event(viewport, event, shape_idx):
 	# This function is automatically called when you click a node with a CollisionShape2D
 	if event is InputEventMouseButton and event.pressed:
@@ -12,6 +15,7 @@ func _input_event(viewport, event, shape_idx):
 
 func deal_enemy_dmg(dmg):
 	curr_health = curr_health - dmg
-	if curr_health < 0:
+	$Label.text = str(curr_health)
+	if curr_health <= 0:
 		return true
 	return false

@@ -23,7 +23,7 @@ offset_bottom = 31.0
 text = "number of turns left: 6"
 
 [node name="enemy_troops" type="Node2D" parent="."]
-position = Vector2(0, 200)
+position = Vector2(0, 216)
 
 [node name="player_troops" type="Node2D" parent="."]
 position = Vector2(0, 376)
