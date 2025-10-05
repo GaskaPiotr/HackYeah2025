@@ -10,6 +10,7 @@ var value = 2
 
 func _ready():
 	original_modulate = $Sprite2D.modulate
+	$value.text = str(value)
 
 func _input_event(viewport, event, shape_idx):
 	# This function is automatically called when you click a node with a CollisionShape2D
@@ -40,6 +41,6 @@ func _on_mouse_entered():
 
 func _on_mouse_exited():
 	position.y = position.y + offset
-	scale.x = 0.8
-	scale.y = 0.8
+	scale.x = 1
+	scale.y = 1
 	z_index = 0

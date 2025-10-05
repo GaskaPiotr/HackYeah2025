@@ -1,7 +1,11 @@
-[gd_scene load_steps=3 format=3 uid="uid://bhk8h6fbi3rpb"]
+[gd_scene load_steps=5 format=3 uid="uid://bhk8h6fbi3rpb"]
 
 [ext_resource type="Script" uid="uid://dcgwa486xo7w3" path="res://board/card_choose.gd" id="1_361o3"]
 [ext_resource type="Texture2D" uid="uid://b46j3eo6rr3gw" path="res://icon.svg" id="2_ipaxy"]
+[ext_resource type="FontFile" uid="uid://rapggwm2budn" path="res://font/MedievalSharp-Regular.ttf" id="3_ipaxy"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_ipaxy"]
+font_color = Color(1, 0, 0, 1)
 
 [node name="CardChoose" type="Area2D"]
 script = ExtResource("1_361o3")
@@ -21,3 +25,11 @@ default_color = Color(1, 0, 0, 1)
 [node name="Line2D2" type="Line2D" parent="."]
 points = PackedVector2Array(-64, 120, 64, -120)
 default_color = Color(1, 0, 0, 1)
+
+[node name="value" type="Label" parent="."]
+offset_left = 40.0
+offset_right = 80.0
+offset_bottom = 23.0
+theme_override_fonts/font = ExtResource("3_ipaxy")
+text = "123"
+label_settings = SubResource("LabelSettings_ipaxy")

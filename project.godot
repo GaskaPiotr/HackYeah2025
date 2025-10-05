@@ -15,6 +15,10 @@ run/main_scene="uid://di4qnq3n5v88r"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+MusicManager="*res://music_manager/music_manager.gd"
+
 [display]
 
 window/stretch/mode="canvas_items"

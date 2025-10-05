@@ -4,6 +4,30 @@ var card_placeholder = preload("res://board/card_placeholder.tscn")
 var card_choose = preload("res://board/card_choose.tscn")
 var card_on_hand = preload("res://board/card_on_hand.tscn")
 
+var textures = [
+	preload("res://graphics/a_czar.png"),
+	preload("res://graphics/a_czar2.png"),
+	preload("res://graphics/a_czar3.png"),
+	preload("res://graphics/a_skel.png"),
+	preload("res://graphics/a_skel2.png"),
+	preload("res://graphics/a_skel3.png"),
+	preload("res://graphics/a_skel4.png"),
+	preload("res://graphics/a_war.png"),
+	preload("res://graphics/a_war2.png"),
+	preload("res://graphics/a_war3.png")
+]
+
+var poison_texture = preload("res://graphics/posion.png")
+var heal_texture = preload("res://graphics/heal.png")
+var draw_texture = preload("res://graphics/draw.png")
+
+var arsenal_textures = [
+	preload("res://graphics/axe2.png"),
+	preload("res://graphics/sztylet.png")
+]
+
+var default_icon = preload("res://icon.svg")
+
 var turn = 1 # 1 = player, 0 = enemy
 
 var max_number_of_turns = 6
@@ -25,6 +49,8 @@ enum EnemyMove { MIXTURE_DMG, MIXTURE_HEAL, MINION, ARSENAL }
 
 var hand_size = 7
 
+var boss: bool
+
 func _ready():
 	board_width = board_width - x_offset_troops*2
 	x_difference_between_cards = board_width/number_of_card_placeholders
@@ -32,19 +58,45 @@ func _ready():
 	add_player_cards_placeholders()
 	turns_left = max_number_of_turns
 	player_choose_cards()
-	$number_of_turns_left.text = str(turns_left)
-
+	$number_of_turns_left.text = "Turns left " + str(turns_left)
 
 func player_choose_cards():
 	$player_choose.visible = true
+	$end_fight_earlier.visible = false
+	$end_round.visible = false
+	$turn.visible = false
 	$ColorRect.color = Color(0.0, 0.0, 0.0, 0.5)
 	$ColorRect.visible = true
 	$ColorRect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var x_difference_between_cards_choose = board_width/num_cards_to_choose
 	for i in range(num_cards_to_choose):
-		var card_x = x_difference_between_cards_choose * i + x_difference_between_cards_choose/2
+		var card_x = x_difference_between_cards_choose * i + x_difference_between_cards_choose/2 + x_offset_troops
 		var new_card_choose = card_choose.instantiate()
 		new_card_choose.position = Vector2(card_x, 0)
+		new_card_choose.card_type = CardType.values()[randi() % EnemyMove.size()]
+		new_card_choose.value = randi() % 4 + 1
+		if new_card_choose.card_type == CardType.MINION:
+			var texture = textures[randi() % textures.size()]
+			new_card_choose.get_node("Sprite2D").texture = texture
+			new_card_choose.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+		elif new_card_choose.card_type == CardType.MIXTURE_HEAL:
+			new_card_choose.get_node("Sprite2D").texture = heal_texture
+			new_card_choose.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+		elif new_card_choose.card_type == CardType.MIXTURE_DMG:
+			new_card_choose.get_node("Sprite2D").texture = poison_texture
+			new_card_choose.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+		elif new_card_choose.card_type == CardType.MIXTURE_DRAW:
+			new_card_choose.get_node("Sprite2D").texture = draw_texture
+			new_card_choose.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+		elif new_card_choose.card_type == CardType.ARSENAL:
+			new_card_choose.get_node("Sprite2D").texture = arsenal_textures[randi() % arsenal_textures.size()]
+			new_card_choose.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+		elif new_card_choose.card_type == CardType.MIXTURE_HEAL:
+			new_card_choose.get_node("Sprite2D").texture = heal_texture
+			new_card_choose.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+		else:
+			print(new_card_choose.card_type)
+			new_card_choose.get_node("Sprite2D").texture = default_icon
 		cards_to_choose.append(new_card_choose)
 		$player_choose.add_child(new_card_choose)
 	var btn = $player_choose/Button
@@ -78,16 +130,45 @@ func _on_button_pressed() -> void:
 			var old_card = cards_to_choose[i]
 			var new_card_placeholder = card_choose.instantiate()
 			new_card_placeholder.position = old_card.global_position
+			new_card_placeholder.card_type = CardType.values()[randi() % EnemyMove.size()]
+			new_card_placeholder.value = randi() % 4 + 1
+			if new_card_placeholder.card_type == CardType.MINION:
+				var texture = textures[randi() % textures.size()]
+				new_card_placeholder.get_node("Sprite2D").texture = texture
+				new_card_placeholder.get_node("Sprite2D").scale = Vector2(0.1, 0.1)
+			elif new_card_placeholder.card_type == CardType.MIXTURE_HEAL:
+				new_card_placeholder.get_node("Sprite2D").texture = heal_texture
+				new_card_placeholder.get_node("Sprite2D").scale = Vector2(0.1, 0.1)
+			elif new_card_placeholder.card_type == CardType.MIXTURE_DMG:
+				new_card_placeholder.get_node("Sprite2D").texture = poison_texture
+				new_card_placeholder.get_node("Sprite2D").scale = Vector2(0.1, 0.1)
+			elif new_card_placeholder.card_type == CardType.MIXTURE_DRAW:
+				new_card_placeholder.get_node("Sprite2D").texture = draw_texture
+				new_card_placeholder.get_node("Sprite2D").scale = Vector2(0.1, 0.1)
+			elif new_card_placeholder.card_type == CardType.ARSENAL:
+				new_card_placeholder.get_node("Sprite2D").texture = arsenal_textures[randi() % arsenal_textures.size()]
+				new_card_placeholder.get_node("Sprite2D").scale = Vector2(0.1, 0.1)
+			elif new_card_placeholder.card_type == CardType.MIXTURE_HEAL:
+				new_card_placeholder.get_node("Sprite2D").texture = heal_texture
+				new_card_placeholder.get_node("Sprite2D").scale = Vector2(0.1, 0.1)
+			else:
+				new_card_placeholder.get_node("Sprite2D").texture = default_icon
 			cards_to_choose[i] = new_card_placeholder
 			old_card.queue_free()
 	for card in cards_to_choose:
 		var new_card_on_hand = card_on_hand.instantiate()
+		new_card_on_hand.value = card.value
 		new_card_on_hand.position = card.position
+		new_card_on_hand.card_type = card.card_type
+		new_card_on_hand.get_node("Sprite2D").texture = card.get_node("Sprite2D").texture
 		cards_on_hand.append(new_card_on_hand)
 		$player_hand.add_child(new_card_on_hand)
 	$player_choose.visible = false
 	$ColorRect.visible = false
 	$ColorRect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	$end_fight_earlier.visible = true
+	$end_round.visible = true
+	$turn.visible = true
 	arrange_cards_in_hand(cards_on_hand, Vector2(0,80))
 	
 func arrange_cards_in_hand(cards: Array, center_pos: Vector2, spacing: float = 100.0, max_angle: float = 12.0, max_height: float = 50.0):
@@ -111,6 +192,7 @@ func arrange_cards_in_hand(cards: Array, center_pos: Vector2, spacing: float = 1
 		var card = cards[i]
 		card.position = center_pos + Vector2(x_offset, -y_offset)
 		card.rotation_degrees = angle
+		card.get_node("Sprite2D").scale = Vector2(0.2, 0.2)
 		print(card.global_position.x, card.global_position.y)
 
 func change_chosen_card(node):
@@ -127,21 +209,31 @@ func clicked_placeholder(node):
 		if card_on_hand_and_chosen.card_type == CardType.MINION and node.is_occupied == false and node.enemy == false:
 			node.is_occupied = true
 			node.get_node("Minion").visible = true
+			node.get_node("Minion").texture = card_on_hand_and_chosen.get_node("Sprite2D").texture
+			node.get_node("Minion").scale = Vector2(0.18, 0.18)
+			node.set_stats(card_on_hand_and_chosen.value)
+			node.stats = card_on_hand_and_chosen.value
+			node.max_stats = card_on_hand_and_chosen.value
 			cards_on_hand.erase(card_on_hand_and_chosen)
 			card_on_hand_and_chosen.queue_free()
 			arrange_cards_in_hand(cards_on_hand, Vector2(0,80))
 		elif card_on_hand_and_chosen.card_type == CardType.ARSENAL and node.is_occupied == true and node.have_weapon == false and node.enemy == false:
 			node.is_occupied = true
 			node.get_node("Arsenal").visible = true
+			node.get_node("Arsenal").texture = card_on_hand_and_chosen.get_node("Sprite2D").texture
+			node.get_node("Arsenal").scale = Vector2(0.18, 0.18)
+			node.weapon_stats = card_on_hand_and_chosen.value
 			cards_on_hand.erase(card_on_hand_and_chosen)
 			card_on_hand_and_chosen.queue_free()
 			arrange_cards_in_hand(cards_on_hand, Vector2(0,80))
 		elif card_on_hand_and_chosen.card_type == CardType.MIXTURE_HEAL and node.is_occupied == true and node.enemy == false:
 			# node.strength += card_on_hand_and_chosen.value
+			node.healing(card_on_hand_and_chosen.value)
 			cards_on_hand.erase(card_on_hand_and_chosen)
 			card_on_hand_and_chosen.queue_free()
 			arrange_cards_in_hand(cards_on_hand, Vector2(0,80))
 		elif card_on_hand_and_chosen.card_type == CardType.MIXTURE_DMG and node.is_occupied == true and node.enemy == true:
+			node.deal_dmg(card_on_hand_and_chosen.value)
 			cards_on_hand.erase(card_on_hand_and_chosen)
 			card_on_hand_and_chosen.queue_free()
 			arrange_cards_in_hand(cards_on_hand, Vector2(0,80))
@@ -152,22 +244,45 @@ func clicked_placeholder(node):
 			for i in range(n_cards):
 				if hand_size > cards_on_hand.size():
 					var new_card_on_hand = card_on_hand.instantiate()
+					new_card_on_hand.card_type = CardType.values()[randi() % EnemyMove.size()]
+					new_card_on_hand.value = randi() % 4 + 1
+					if new_card_on_hand.card_type == CardType.MINION:
+						var texture = textures[randi() % textures.size()]
+						new_card_on_hand.get_node("Sprite2D").texture = texture
+						new_card_on_hand.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+					elif new_card_on_hand.card_type == CardType.MIXTURE_HEAL:
+						new_card_on_hand.get_node("Sprite2D").texture = heal_texture
+						new_card_on_hand.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+					elif new_card_on_hand.card_type == CardType.MIXTURE_DMG:
+						new_card_on_hand.get_node("Sprite2D").texture = poison_texture
+						new_card_on_hand.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+					elif new_card_on_hand.card_type == CardType.MIXTURE_DRAW:
+						new_card_on_hand.get_node("Sprite2D").texture = draw_texture
+						new_card_on_hand.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+					elif new_card_on_hand.card_type == CardType.ARSENAL:
+						new_card_on_hand.get_node("Sprite2D").texture = arsenal_textures[randi() % arsenal_textures.size()]
+						new_card_on_hand.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+					elif new_card_on_hand.card_type == CardType.MIXTURE_HEAL:
+						new_card_on_hand.get_node("Sprite2D").texture = heal_texture
+						new_card_on_hand.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+					else:
+						new_card_on_hand.get_node("Sprite2D").texture = default_icon
 					cards_on_hand.append(new_card_on_hand)
 					$player_hand.add_child(new_card_on_hand)
 			arrange_cards_in_hand(cards_on_hand, Vector2(0,80))
-		turn = 0
-		enemy_move()
 func clicked_boss(node):
 	if card_on_hand_and_chosen != null and turn == 1:
 		if card_on_hand_and_chosen.card_type == CardType.MIXTURE_DMG:
+			var is_boss_dead = node.deal_enemy_dmg(card_on_hand_and_chosen.value)
+			if (is_boss_dead):
+				you_win()
 			cards_on_hand.erase(card_on_hand_and_chosen)
 			card_on_hand_and_chosen.queue_free()
 			arrange_cards_in_hand(cards_on_hand, Vector2(0,80))
-			turn = 0
-			enemy_move()
 
 #EnemyMove { MIXTURE_DMG, MIXTURE_HEAL, MINION, ARSENAL }
 func enemy_move():
+	$turn.text = "Enemy Turn"
 	print("Starting...")
 	await get_tree().create_timer(1.0).timeout
 	print("1 second later!")
@@ -226,6 +341,8 @@ func enemy_move():
 						child_node.weapon_stats = value
 						child_node.have_weapon = true
 						child_node.get_node("Arsenal").visible = true
+						child_node.get_node("Arsenal").texture = arsenal_textures[randi() % arsenal_textures.size()]
+						child_node.get_node("Arsenal").scale = Vector2(0.18, 0.18)
 						moved = true
 					# VISIBLE ARSENALrandom_child.
 						print("moved ARSENAL")
@@ -241,13 +358,82 @@ func enemy_move():
 				var random_child = randi() % (number_of_card_placeholders - num_of_children)
 				var child_node = children[random_child]
 				if child_node.is_occupied == false:
-					child_node.stats = value
+					child_node.set_stats(value)
 					child_node.is_occupied = true
 					child_node.get_node("Minion").visible = true
+					child_node.get_node("Minion").texture = textures[randi() % textures.size()]
+					child_node.get_node("Minion").scale = Vector2(0.18, 0.18)
 					moved = true
 					print("moved MINION")
 	turn = 1
+	$turn.text = "Your Turn"
 	turns_left = turns_left - 1
-	$number_of_turns_left.text = str(turns_left)
+	if turns_left == 0:		
+		fight()
+	else:
+		var new_card_on_hand = card_on_hand.instantiate()
+		new_card_on_hand.card_type = CardType.values()[randi() % EnemyMove.size()]
+		new_card_on_hand.value = randi() % 4 + 1
+		if new_card_on_hand.card_type == CardType.MINION:
+			var texture = textures[randi() % textures.size()]
+			new_card_on_hand.get_node("Sprite2D").texture = texture
+			new_card_on_hand.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+		elif new_card_on_hand.card_type == CardType.MIXTURE_HEAL:
+			new_card_on_hand.get_node("Sprite2D").texture = heal_texture
+			new_card_on_hand.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+		elif new_card_on_hand.card_type == CardType.MIXTURE_DMG:
+			new_card_on_hand.get_node("Sprite2D").texture = poison_texture
+			new_card_on_hand.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+		elif new_card_on_hand.card_type == CardType.MIXTURE_DRAW:
+			new_card_on_hand.get_node("Sprite2D").texture = draw_texture
+			new_card_on_hand.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+		elif new_card_on_hand.card_type == CardType.ARSENAL:
+			new_card_on_hand.get_node("Sprite2D").texture = arsenal_textures[randi() % arsenal_textures.size()]
+			new_card_on_hand.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+		elif new_card_on_hand.card_type == CardType.MIXTURE_HEAL:
+			new_card_on_hand.get_node("Sprite2D").texture = heal_texture
+			new_card_on_hand.get_node("Sprite2D").scale = Vector2(0.25, 0.25)
+		else:
+			new_card_on_hand.get_node("Sprite2D").texture = default_icon
+		cards_on_hand.append(new_card_on_hand)
+		arrange_cards_in_hand(cards_on_hand, Vector2(0,80))
+		$player_hand.add_child(new_card_on_hand)
+	$number_of_turns_left.text = "Turns left " + str(turns_left)
 
-		
+
+func fight():
+	turn = 0
+	$turn.text = "Fight"
+	var minions = $player_troops.get_children()
+	var enemy_minions = $enemy_troops.get_children()
+	for i in range(minions.size()):
+		if minions[i].is_occupied:
+			if enemy_minions[i].is_occupied:
+				await get_tree().create_timer(0.5).timeout
+				var difference = minions[i].stats + minions[i].weapon_stats - enemy_minions[i].stats - enemy_minions[i].weapon_stats
+				enemy_minions[i].stats = enemy_minions[i].stats - minions[i].stats + enemy_minions[i].weapon_stats - minions[i].weapon_stats
+				minions[i].stats = difference
+			if minions[i].stats > 0 and $Enemy.curr_health > 0:
+				await get_tree().create_timer(0.5).timeout
+				$Enemy.curr_health = $Enemy.curr_health - minions[i].stats
+	if $Enemy.curr_health > 0:
+		you_lose()
+	else:
+		you_win()
+
+func you_lose():
+	get_tree().change_scene_to_file("res://dungeon/dungeon.tscn")
+func you_win():
+	queue_free()
+
+
+
+func _on_end_round_pressed() -> void:
+	if turn == 1:
+		turn = 0
+		enemy_move()
+
+
+func _on_end_fight_earlier_pressed() -> void:
+	if turn == 1:
+		fight()
