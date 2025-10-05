@@ -3,6 +3,11 @@ extends Node2D
 var stage := 4
 var dungeon_node = preload("res://dungeon/dungeon_node.tscn")
 var dungeon_layer = preload("res://dungeon/layer.tscn")
+var dungeon_node_textures = [
+	preload("res://graphics/dun_node_1.png"),
+	preload("res://graphics/dun_node_2.png"),
+	preload("res://graphics/dun_node_3.png")
+]
 var number_of_layers
 var dungeon_height = 648
 var dungeon_width = 1152
@@ -15,7 +20,7 @@ var layers_of_nodes := []
 
 var starting_pos_in_lay = 3
 
-var player_position := Vector2(0, 3)
+var player_position := Vector2(-1, 3)
 
 
 #func new_dungeon(stage):
@@ -55,16 +60,24 @@ func gen_new_dungeon(st):
 
 func lock_and_unlock_nodes(player_pos):
 	var curr_node = null
-	for node in layers_of_nodes[player_pos.x]:
-		if node.pos_in_layer == player_pos.y:
-			curr_node = node
-	var connections = curr_node.connections
+	var connections
+	if player_pos.x != -1:
+		for node in layers_of_nodes[player_pos.x]:
+			if node.pos_in_layer == player_pos.y:
+				curr_node = node
+		connections = curr_node.connections
 	for layer in layers_of_nodes:
 		for node in layer:
 			node.unlocked = false
-	for node in layers_of_nodes[player_pos.x + 1]:
-		if node.pos_in_layer in connections:
+	if player_pos.x != -1 and player_pos.x != layers_of_nodes.size() - 1:
+		for node in layers_of_nodes[player_pos.x + 1]:
+			if node.pos_in_layer in connections:
+				node.unlocked = true
+	elif player_pos.x == -1:
+		for node in layers_of_nodes[0]:
 			node.unlocked = true
+	else:
+		print("you win")
 	
 
 func make_connections_between_layers():
@@ -96,6 +109,7 @@ func create_line(curr_x, curr_y, next_x, next_y):
 	var line = Line2D.new()
 	line.width = 3
 	line.default_color = Color.WHITE
+	line.z_index = -1
 	
 	line.points = [
 		Vector2(curr_x, curr_y),
@@ -114,9 +128,25 @@ func gen_new_node(st, pos_x, pos_y, pos_in_lay, layer):
 	new_dungeon_node.pos_in_layer = pos_in_lay
 	new_dungeon_node.layer = layer
 	new_dungeon_node.position = Vector2(pos_x, pos_y)
+	new_dungeon_node.get_node("Sprite2D").texture = dungeon_node_textures[randi() % dungeon_node_textures.size()]
+	new_dungeon_node.get_node("Sprite2D").scale = Vector2(0.4, 0.4)
 	return new_dungeon_node
 
 func update_player_position(node):
+	var fight_scene = preload("res://board/board.tscn").instantiate()
+	
+	# Pass variable from dungeon to fight
+	fight_scene.boss = false
+	if node.layer == layers_of_nodes.size() - 1:
+		fight_scene.boss = true
+	var blocker = ColorRect.new()
+	blocker.color = Color(0, 0, 0, 0) # fully transparent
+	blocker.mouse_filter = Control.MOUSE_FILTER_STOP
+	blocker.size = get_viewport_rect().size
+	add_child(blocker)
+	blocker.move_to_front()
+	get_tree().current_scene.add_child(fight_scene)
+	blocker.queue_free()
 	var player_pox_x = node.layer
 	var player_pox_y = node.pos_in_layer
 

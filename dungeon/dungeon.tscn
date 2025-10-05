@@ -6,6 +6,7 @@
 script = ExtResource("1_d7mhw")
 
 [node name="Polygon2D" type="Polygon2D" parent="."]
+visible = false
 position = Vector2(23, -4)
 color = Color(0.40069774, 0.40069774, 0.40069768, 1)
 polygon = PackedVector2Array(-55, -48, 1224, -48, 1223, 742, -111, 740)
